@@ -73,3 +73,5 @@ whitenoise==6.9.0
 xhtml2pdf==0.2.16
 XlsxWriter==3.2.2
 zopfli==0.2.3.post1
+whitenoise==6.9.0
+
