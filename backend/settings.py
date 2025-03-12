@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['parliamentary-kimmi-proyecto-meteorito-backend-c3147a03.koyeb.app', 'localhost', '127.0.0.1']
 
 
 CORS_ORIGIN_WHITELIST = (
