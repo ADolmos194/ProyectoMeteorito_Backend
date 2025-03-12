@@ -1,8 +1,5 @@
 from django.db import models
 
-# Create your models here.
-from django.db import models
-
 # Modelo que representa un Estado
 class Estado(models.Model):
 
@@ -56,3 +53,4 @@ class Formapago(models.Model):
         
     def __str__(self):
 	    return '%s' % (self.nombre)
+ 

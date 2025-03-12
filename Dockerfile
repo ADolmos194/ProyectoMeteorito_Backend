@@ -1,11 +1,18 @@
-FROM python:3.11
-ENV PYTHONUNBUFFERED 1
-RUN mkdir /code_free
+# Usa una imagen de Python optimizada
+FROM python:3.11-slim
 
-WORKDIR /code_free
+# Define el directorio de trabajo dentro del contenedor
+WORKDIR /code
 
-COPY requirements.txt /code_free/
+# Copia y instala dependencias
+COPY requirements.txt /code/
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python -m pip install -r requirements.txt
+# Copia el resto del código
+COPY . /code/
 
-COPY . /code_free/
+# Exponer el puerto en el que correrá Django
+EXPOSE 8000
+
+# Ejecutar la aplicación
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]

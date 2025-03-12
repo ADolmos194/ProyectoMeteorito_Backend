@@ -1,20 +1,16 @@
-version: '3'
-
 services:
 
   webtesis:
     build: .
     container_name: webtesis
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code_free
     ports:
-      - "8180:8000"
+      - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=backend.settings
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-8-b@i&6&_ott_xux*n0g+*q3mnt9q65ze215173w+ju^ek+bv!
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
       - ALLOWED_HOSTS=*
+    command: gunicorn --bind 0.0.0.0:8000 backend.wsgi:application
 
   dbtesis:
     image: postgres:13
