@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
-from app.models import  Estado, Formapago, Tipodocumento
+from app.models import  Estado, Tipodocumento
 
 class Clientes(models.Model):
     
@@ -67,26 +67,3 @@ class Tesis(models.Model):
     def __str__(self):
         
         return '%s' % (self.nombre_tesis)
-
-class Pagos(models.Model):
-    
-    clientes = models.ForeignKey(Clientes, on_delete=models.CASCADE)
-    tesis = models.CharField(max_length=255, null=True, blank=True)
-    formapago = models.ForeignKey(Formapago, on_delete=models.CASCADE)
-    monto_completo = models.CharField(max_length=100, null=True, blank=True)
-    cantidad_cuotas = models.CharField(max_length=100, null=True, blank=True)
-    monto_cuotas = models.CharField(max_length=100, null=True, blank=True)
-    cuotas_cancelado = models.CharField(max_length=100, null=True, blank=True)
-    monto_cancelado = models.CharField(max_length=100, null=True, blank=True)
-    #Monto faltante a cancelar
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_modificacion = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        
-        db_table = "pagos"
-        
-    def __str__(self):
-        
-        return '%s' % (self.monto_completo)
