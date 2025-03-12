@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': dj_database_url.config(default='postgresql://postgres:dSIGcNiIqapwPIdpGbnqBRSUAlqiNSER@postgres-mocb.railway.internal:5432/railway')
 }
 
 
