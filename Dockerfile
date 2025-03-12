@@ -1,18 +1,11 @@
-# Usa una imagen base de Python
-FROM python:3.10
+FROM python:3.11
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /code_free
 
-# Establece el directorio de trabajo en /app
-WORKDIR /app
+WORKDIR /code_free
 
-# Copia solo los archivos necesarios
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /code_free/
 
-COPY . ./
+RUN python -m pip install -r requirements.txt
 
-# Expone el puerto
-EXPOSE 8000
-
-# Comando para iniciar Gunicorn
-CMD gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
-
+COPY . /code_free/
