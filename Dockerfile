@@ -14,4 +14,5 @@ COPY . ./
 EXPOSE 8000
 
 # Comando para iniciar Gunicorn
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:${PORT}"]
+CMD gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+
