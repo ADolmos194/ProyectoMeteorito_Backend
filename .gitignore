@@ -1,0 +1,37 @@
+# Ignorar variables de entorno
+.env
+ignore/
+
+# Ignorar archivos de compilación de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar bases de datos locales de SQLite (si usaste antes)
+db.sqlite3
+
+# Ignorar logs y archivos temporales
+*.log
+*.pot
+*.py[co]
+
+# Ignorar dependencias y entornos virtuales
+venv/
+.env/
+*.venv
+*.egg-info/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignorar archivos de Docker
+docker-compose.override.yml
+.dockerignore
+
+# Ignorar archivos de IDEs
+.vscode/
+.idea/
+*.iml
+
+# Ignorar archivos de Netlify (si lo usas)
+netlify/
