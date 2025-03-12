@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 
 import os
-
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
@@ -81,7 +80,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default='postgresql://postgres:dSIGcNiIqapwPIdpGbnqBRSUAlqiNSER@postgres-mocb.railway.internal:5432/railway')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'postgres.railway.internal',
+        'PORT': '5432',
+    }
 }
 
 
