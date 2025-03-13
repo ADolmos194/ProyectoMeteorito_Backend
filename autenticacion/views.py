@@ -55,7 +55,6 @@ def login(request):
 
 @api_view(["POST"])
 def logout(request):
-    request.auth.delete() 
     return Response(
         {"code": 200, "status": "success", "message": "Sesión cerrada correctamente"},
         status=status.HTTP_200_OK,
