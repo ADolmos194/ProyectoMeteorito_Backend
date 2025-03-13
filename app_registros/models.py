@@ -67,3 +67,4 @@ class Tesis(models.Model):
     def __str__(self):
         
         return '%s' % (self.nombre_tesis)
+
