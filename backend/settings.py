@@ -17,24 +17,23 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:4200',
-    'https://proyectometeoritoswtesis.netlify.app'
-)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "https://proyectometeoritoswtesis.netlify.app",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [
-    'content-type',
-    'authorization',
+    "content-type",
+    "authorization",
+    "accept",
+    "x-csrftoken",
 ]
 
 
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-    'OPTIONS',
-]
+CORS_ALLOW_ALL_METHODS = True
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
