@@ -9,5 +9,6 @@ urlpatterns = [
 
     path('app/', include('app.urls')),
     path('registros/', include('app_registros.urls')),
+    path('autenticacion/', include('autenticacion.urls')),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

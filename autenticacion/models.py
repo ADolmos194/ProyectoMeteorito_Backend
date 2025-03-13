@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.hashers import make_password
 from app.models import Estado
 
 # Create your models here.
@@ -16,5 +16,12 @@ class Loginusuarios(models.Model):
         db_table = "loginusuarios"
     
     def __str__(self):
+        return '%s - %s'% (self.username, self.password)
+
+    def save(self, *args, **kwargs):
+        # Cifra la contraseña antes de guardar si no está ya cifrada
+        if not self.password.startswith('pbkdf2_sha256$'):
+            self.password = make_password(self.password)
+        super(Loginusuarios, self).save(*args, **kwargs)
         
-        return '%s' % (self.username)
+        
