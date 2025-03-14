@@ -21,6 +21,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "https://proyectometeoritoswtesis.netlify.app",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+    "https://proyectometeoritoswtesis.netlify.app",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
