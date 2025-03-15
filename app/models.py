@@ -28,6 +28,19 @@ class Estado(models.Model):
         En este caso, devuelve el nombre del estado.
         """
         return '%s' % (self.nombre)
+    
+    
+class Estadopagos(models.Model):
+
+    nombre = models.CharField(max_length=25, null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "estadopagos"
+        
+    def __str__(self):
+	    return '%s' % (self.nombre)
 
 #Es eso aplica en el resto de los modelos
 class Tipodocumento(models.Model):
@@ -42,3 +55,39 @@ class Tipodocumento(models.Model):
     def __str__(self):
 	    return '%s' % (self.nombre)
 
+
+class Formapago(models.Model):
+    
+    nombre = models.CharField(max_length=25, null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = "formapago"
+        
+    def __str__(self):
+        return '%s' % (self.nombre)
+    
+class Cuotas(models.Model):
+    
+    nombre = models.FloatField(null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = "cuotas"
+        
+    def __str__(self):
+        return '%s' % (self.nombre)
+    
+class Cuotaspagadas(models.Model):
+    
+    nombre = models.FloatField(null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = "Cuotaspagadas"
+        
+    def __str__(self):
+        return '%s' % (self.nombre)
