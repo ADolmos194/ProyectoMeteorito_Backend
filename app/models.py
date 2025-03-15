@@ -70,7 +70,7 @@ class Formapago(models.Model):
     
 class Cuotas(models.Model):
     
-    nombre = models.FloatField(null=True, blank=True)
+    nombre = models.CharField(max_length=50, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
     
@@ -82,7 +82,7 @@ class Cuotas(models.Model):
     
 class Cuotaspagadas(models.Model):
     
-    nombre = models.FloatField(null=True, blank=True)
+    nombre = models.CharField(max_length=50, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
     
