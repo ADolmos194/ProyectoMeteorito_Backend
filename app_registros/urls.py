@@ -27,11 +27,14 @@ urlpatterns = [
     
     
     
-    ####################
-    path('tesis/eliminar/<int:id>/', eliminar_tesis, name="eliminar_tesis"),########### TESIS ##############################
+    ############################### TESIS ##############################
     
     path('tesis/', listar_tesis, name="listar_tesis"),
     path('tesis/crear/', crear_tesis, name="crear_tesis"),
     path('tesis/actualizar/<int:id>/', actualizar_tesis, name="actualizar_tesis"),
+    path('tesis/eliminar/<int:id>/', eliminar_tesis, name="eliminar_tesis"),
+    ############################### PAGOS CLIENTES ##############################
+    
+    path('pagosclientes/', listar_pagosclientes, name="listar_pagosclientes"),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

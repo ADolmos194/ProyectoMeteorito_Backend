@@ -87,7 +87,7 @@ class Cuotaspagadas(models.Model):
     fecha_modificacion = models.DateTimeField(auto_now=True)
     
     class Meta:
-        db_table = "Cuotaspagadas"
+        db_table = "cuotaspagadas"
         
     def __str__(self):
         return '%s' % (self.nombre)

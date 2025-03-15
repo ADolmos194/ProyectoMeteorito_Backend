@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
-from app.models import  Cuotas, Cuotaspagadas, Estado, Tipodocumento
+from app.models import  Cuotas, Cuotaspagadas, Estado, Estadopagos, Tipodocumento
 
 class Clientes(models.Model):
     
@@ -66,7 +66,7 @@ class Tesis(models.Model):
         
     def __str__(self):
         
-        return '%s' % (self.nombre_tesis)
+        return "%s - %s" % (self.clientes, self.universidad)
 
 
 class Pagosclientes(models.Model):
@@ -78,6 +78,8 @@ class Pagosclientes(models.Model):
     monto_cuotas = models.FloatField(null=True, blank=True) #MONTO -> 500
     fecha_pago_inicial = models.DateField(null=True, blank=True) #14/03/2025
     fecha_pago_final = models.DateField(null=True, blank=True) #14/08/2025
+    estado_pagos = models.ForeignKey(Estadopagos, on_delete=models.CASCADE) #CANCELADO - PENDIENTE 
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE) # ACTIVO O INACTIVO
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
     
@@ -87,6 +89,6 @@ class Pagosclientes(models.Model):
         
     def __str__(self):
         
-        return '%s - %s'  % (self.tesis, self.monto_tesis)
+        return "%s - %s"  % (self.tesis, self.monto_tesis)
     
     

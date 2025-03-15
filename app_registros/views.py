@@ -730,3 +730,65 @@ def eliminar_tesis(request, id):
             return JsonResponse(dic_response, status=500)
 
     return JsonResponse(dic_response, status=200)
+
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_pagosclientes(request):
+        
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Pagos de clientes no encontradas",
+        "message_user": "Pagos de clientes no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try: 
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        pc.id,
+                        pc.tesis_id,
+                        CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre_cliente_universidad,
+                        pc.cuotas_id,
+                        pc.cuotas_pagadas_id,
+                        pc.monto_cuotas,
+                        pc.fecha_pago_inicial,
+                        pc.fecha_pago_final,
+                        pc.estado_pagos_id,
+                        pc.estado_id,
+                        TO_CHAR(pc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
+                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
+                    FROM Pagosclientes pc
+                    LEFT JOIN Tesis t ON pc.tesis_id = t.id
+                    LEFT JOIN Clientes c ON t.clientes_id = c.id
+                    WHERE pc.estado_id IN (1, 2)
+                    ORDER BY pc.id DESC;
+                    """
+                )
+                dic_tesis = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+                
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Pagos de clientes obtenidas correctamente",
+                    "message": "Pagos de clientes obtenidas correctamente",
+                    "data": dic_tesis,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar los Pagos de clientes: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar los Pagos de clientes", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+
