@@ -757,7 +757,7 @@ def listar_pagosclientes(request):
                         pc.cuotas_id,
                         ct.nombre as cuotasnombre,
                         pc.cuotas_pagadas_id,
-                        ctp.nombre as cuotaspagadasnombre,
+                        ctp.nombre as cuotaspagadasnombre, 
                         pc.monto_cuotas,
                         pc.fecha_pago_inicial,
                         pc.fecha_pago_final,
@@ -772,7 +772,8 @@ def listar_pagosclientes(request):
                     LEFT JOIN Cuotaspagadas ctp ON pc.cuotas_pagadas_id = ctp.id
                     WHERE pc.estado_id IN (1, 2)
                     ORDER BY pc.id DESC;
-                    """
+                    """ 
+                    #no muestra cuotasnombre y cuotaspagadasnombre
                 )
                 dic_pagoclientes = ConvertirQueryADiccionarioDato(cursor)
                 cursor.close()
