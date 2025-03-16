@@ -753,8 +753,11 @@ def listar_pagosclientes(request):
                         pc.id,
                         pc.tesis_id,
                         CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre_cliente_universidad,
+                        pc.monto_tesis,
                         pc.cuotas_id,
+                        ct.nombre as cuotasnombre,
                         pc.cuotas_pagadas_id,
+                        ctp.nombre as cuotaspagadasnombre,
                         pc.monto_cuotas,
                         pc.fecha_pago_inicial,
                         pc.fecha_pago_final,
@@ -765,11 +768,13 @@ def listar_pagosclientes(request):
                     FROM Pagosclientes pc
                     LEFT JOIN Tesis t ON pc.tesis_id = t.id
                     LEFT JOIN Clientes c ON t.clientes_id = c.id
+                    LEFT JOIN Cuotas ct ON pc.cuotas_id = ct.id
+                    LEFT JOIN Cuotaspagadas ctp ON pc.cuotas_pagadas_id = ctp.id
                     WHERE pc.estado_id IN (1, 2)
                     ORDER BY pc.id DESC;
                     """
                 )
-                dic_tesis = ConvertirQueryADiccionarioDato(cursor)
+                dic_pagoclientes = ConvertirQueryADiccionarioDato(cursor)
                 cursor.close()
                 
             dic_response.update(
@@ -778,7 +783,7 @@ def listar_pagosclientes(request):
                     "status": "success",
                     "message_user": "Pagos de clientes obtenidas correctamente",
                     "message": "Pagos de clientes obtenidas correctamente",
-                    "data": dic_tesis,
+                    "data": dic_pagoclientes,
                 }
             )
             return JsonResponse(dic_response, status=200)
