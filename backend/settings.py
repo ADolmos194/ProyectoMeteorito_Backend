@@ -9,32 +9,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8-b@i&6&_ott_xux*n0g+*q3mnt9q65ze215173w+ju^ek+bv!'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:4200',
-    'https://proyectometeoritoswtesis.netlify.app'
-)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "https://proyectometeoritoswtesis.netlify.app",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+    "https://proyectometeoritoswtesis.netlify.app",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [
-    'content-type',
-    'authorization',
+    "content-type",
+    "authorization",
+    "accept",
+    "x-csrftoken",
 ]
 
 
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-    'OPTIONS',
-]
+CORS_ALLOW_ALL_METHODS = True
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -95,10 +98,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'koyebdb',
-        'USER': 'koyeb-adm',
-        'PASSWORD': 'npg_fFgQ5inkhU1J',
-        'HOST': 'ep-jolly-paper-a2o452ew.eu-central-1.pg.koyeb.app',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
         'OPTIONS': {'sslmode': 'require'},
     }
 }
@@ -139,6 +142,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+STATICFILES_DIRS = [BASE_DIR / 'static']  
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
