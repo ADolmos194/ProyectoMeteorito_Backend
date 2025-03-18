@@ -127,9 +127,7 @@ def listar_estado(request):
                     """
                     SELECT
                         e.id,
-                        e.nombre,
-                        TO_CHAR(e.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
-                        TO_CHAR(e.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
+                        e.nombre
                     FROM Estado e
                     WHERE e.id IN (1, 2)
                     ORDER BY e.id DESC
@@ -154,6 +152,56 @@ def listar_estado(request):
             logger.error(f"Error al listar el estado: {str(e)}")
             dic_response.update(
                 {"message": "Error al listar el estado", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_estado_pago(request):
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Estado de pagos no encontradas",
+        "message_user": "Estado de pagos no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try:
+
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        e.id,
+                        e.nombre
+                    FROM Estadopagos e
+                    WHERE e.id IN (1, 2)
+                    ORDER BY e.id DESC
+                    """
+                )
+                dic_estadopagos = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+
+
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Estados de pagos obtenidas correctamente",
+                    "message": "Estados de pagos obtenidas correctamente",
+                    "data": dic_estadopagos,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar el estado de pagos: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar el estado de pagos", "data": str(e)}
             )
             return JsonResponse(dic_response, status=500)
 

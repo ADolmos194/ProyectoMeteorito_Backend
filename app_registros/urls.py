@@ -33,8 +33,15 @@ urlpatterns = [
     path('tesis/crear/', crear_tesis, name="crear_tesis"),
     path('tesis/actualizar/<int:id>/', actualizar_tesis, name="actualizar_tesis"),
     path('tesis/eliminar/<int:id>/', eliminar_tesis, name="eliminar_tesis"),
+    
+    
+    path('tesisclientesuniversidadactivas/', listar_tesisclientesuniversidad_activas, name="listar_tesisclientesuniversidad_activas"),
+    
     ############################### PAGOS CLIENTES ##############################
     
     path('pagosclientes/', listar_pagosclientes, name="listar_pagosclientes"),
+    path('pagosclientes/crear/', crear_pagosclientes, name="crear_pagosclientes"),
+    path('pagosclientes/actualizar/<int:id>/', actualizar_pagosclientes, name="actualizar_pagosclientes"),
+    path('pagosclientes/eliminar/<int:id>/', eliminar_pagosclientes, name="eliminar_pagosclientes"),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

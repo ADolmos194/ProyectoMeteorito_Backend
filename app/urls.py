@@ -15,7 +15,7 @@ urlpatterns = [
     
     # Ruta para listar los estados. Asociado con la vista 'listar_estado' 
     path('estado/', listar_estado, name="listar_estado"),
-    
+    path('estadopagos/', listar_estado_pago, name="listar_estado_pago"),
     
     # Ruta para listar los tipos de documento. Asociado con la vista 'listar_tipodocumento'
     path('tipodocumento/', listar_tipodocumento, name="listar_tipodocumento"),

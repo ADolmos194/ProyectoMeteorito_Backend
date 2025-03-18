@@ -798,3 +798,218 @@ def listar_pagosclientes(request):
 
     return JsonResponse([], safe=False, status=status.HTTP_200_OK)
 
+@api_view(["POST"])
+@transaction.atomic
+def crear_pagosclientes(request):
+    
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al crear los pagos del cliente",
+        "message_user": "Error al crear los pagos del cliente",
+        "data": [],
+    }
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            data["estado"] = 1 
+            data["fecha_creacion"] = datetime.now()  
+            data["fecha_modificacion"] = datetime.now()  
+
+            serializer = PagosclientesSerializer(data=data)
+
+            if serializer.is_valid():
+            
+
+                serializer.save()
+
+                dic_response.update(
+                    {
+                        "code": 201,
+                        "status": "success",
+                        "message_user": "Pagos del cliente creado exitosamente",
+                        "message": "Pagos del cliente creado exitosamente",
+                        "data": serializer.data
+                    }
+                )
+
+                return JsonResponse(dic_response, status=201)
+
+            dic_response.update(
+                {
+                    "data": serializer.errors,
+                }
+            )
+            return JsonResponse(dic_response, status=400)
+
+        except Exception as e:
+            logger.error(f"Error inesperado al crear los pagos del cliente: {str(e)}")
+            dic_response.update(
+                {"message_user": "Error inesperado", "data": {"error": str(e)}}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return Response([], status=status.HTTP_200_OK)
+
+@api_view(["PUT"])
+@transaction.atomic
+def actualizar_pagosclientes(request, id):
+
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al actualizar el pago del cliente",
+        "message_user": "Error al actualizar el pago del cliente",
+        "data": [],
+    }
+
+    if request.method == "PUT":
+        try:
+            
+            data = json.loads(request.body)
+            
+            data["fecha_modificacion"] = datetime.now()
+            
+            try:
+                queryset = Pagosclientes.objects.using('default').get(id=id)
+            except Pagosclientes.DoesNotExist:
+                
+                return JsonResponse(dic_response, safe=False, status=status.HTTP_404_NOT_FOUND)
+
+            
+            serializer = PagosclientesSerializer(queryset, data=data)
+
+            if serializer.is_valid():
+
+                serializer.save()
+                
+                dic_response.update(
+                    {
+                        "code": 200,
+                        "status": "success",
+                        "message_user": "Pago del cliente actualizado exitosamente",
+                        "message": "Pago del cliente actualizado exitosamente",
+                        "data": serializer.data
+                    }
+                )
+
+                return JsonResponse(dic_response, status=200)
+
+            dic_response.update(
+                {
+                    "message_user": "Datos inválidos.",
+                    "data": serializer.errors,
+                }
+            )
+            return JsonResponse(dic_response, status=400)
+
+        except Exception as e:
+
+            logger.error(f"Error inesperado al actualizar el pago del cliente: {str(e)}")
+            dic_response.update(
+                {"message_user": "Error inesperado", "data": {"error": str(e)}}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], status=200)
+
+@api_view(["DELETE"])
+@transaction.atomic
+def eliminar_pagosclientes(request, id):
+
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al eliminar el pago del cliente",
+        "message_user": "Error al eliminar el pago del cliente",
+        "data": [],
+    }
+
+    if request.method == "DELETE":
+        try:
+
+            data = {"estado": 3}        
+
+            try:
+                queryset = Pagosclientes.objects.using('default').get(id=id)
+
+                queryset.estado = Estado.objects.using('default').get(id=data["estado"])
+                queryset.fecha_modificacion = datetime.now()
+                
+                queryset.save()
+
+                serializer = PagosclientesSerializer(queryset)
+
+                dic_response.update(
+                    {
+                        "code": 200,
+                        "status": "success",
+                        "message_user": "Pago de cliente eliminado lógicamente",
+                        "message": "Pago de cliente eliminado lógicamente",
+                        "data": serializer.data,
+                    }
+                )
+
+                logger.info(f"Pago de cliente eliminado logicamente: (ID: {id})")
+                
+                return JsonResponse(dic_response, status=200)
+
+            except Pagosclientes.DoesNotExist:
+                return JsonResponse(dic_response, safe=False, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            logger.error(f"Error inesperado al eliminar el pago del cliente: {str(e)}")
+            dic_response["message"] = "Error inesperado"
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse(dic_response, status=200)
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_tesisclientesuniversidad_activas(request):
+        
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Tesis de clientes - universidad activas no encontradas",
+        "message_user": "Tesis de clientes - universidad activas no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try: 
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        t.id,
+                        CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre
+                    FROM Tesis t
+                    LEFT JOIN Clientes c ON t.id = c.id
+                    WHERE t.estado_id IN (1)
+                    ORDER BY t.id DESC;
+                    """ 
+                )
+                dic_tesisclientesunivesidad_activas = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+                
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Tesis de clientes - universidad activas obtenidas correctamente",
+                    "message": "Tesis de clientes - universidad activas obtenidas correctamente",
+                    "data": dic_tesisclientesunivesidad_activas,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar las Tesis de clientes - universidad activas: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar las Tesis de clientes - universidad activas", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
