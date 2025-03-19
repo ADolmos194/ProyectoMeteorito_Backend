@@ -853,7 +853,6 @@ def listar_pagosclientes(request):
 @api_view(["POST"])
 @transaction.atomic
 def crear_pagosclientes(request):
-    
     dic_response = {
         "code": 400,
         "status": "error",
@@ -865,42 +864,49 @@ def crear_pagosclientes(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            data["estado"] = 1 
-            data["fecha_creacion"] = datetime.now()  
-            data["fecha_modificacion"] = datetime.now()  
+            pagos_creados = []
+            fecha_creacion = datetime.now()
 
-            serializer = PagosclientesSerializer(data=data)
+            for i in range(1, data["cuotas"] + 1):
+                cuota_pagada = Cuotaspagadas.objects.filter(id=i).first()
+                if not cuota_pagada:
+                    continue
 
-            if serializer.is_valid():
+                data["cuotas_pagadas"] = cuota_pagada.id
+                data["fecha_pago_inicial"] = data.get("fecha_pago_inicial") if i == 1 else None
+                data["fecha_pago_final"] = data.get("fecha_pago_final") if i == 1 else None
+                data["estado_pagos"] = 1 if i == 1 else 2
+                data["estado"] = 1
+                data["fecha_creacion"] = fecha_creacion
+                data["fecha_modificacion"] = fecha_creacion
+                
+                serializer = PagosclientesSerializer(data=data)
             
-                serializer.save()
-                dic_response.update(
-                    {
-                        "code": 201,
-                        "status": "success",
-                        "message_user": "Pagos del cliente creado exitosamente",
-                        "message": "Pagos del cliente creado exitosamente",
-                        "data": serializer.data
-                    }
-                )
-
-                return JsonResponse(dic_response, status=201)
+                if serializer.is_valid():
+                    serializer.save()
+                    pagos_creados.append(serializer.data)
+                else:
+                    return JsonResponse({"code": 400, "status": "error", "data": serializer.errors}, status=400)
 
             dic_response.update(
                 {
-                    "data": serializer.errors,
+                    "code": 201,
+                    "status": "success",
+                    "message_user": "Pagos del cliente creados exitosamente",
+                    "message": "Pagos del cliente creados exitosamente",
+                    "data": pagos_creados,
                 }
             )
-            return JsonResponse(dic_response, status=400)
+
+            return JsonResponse(dic_response, status=201)
 
         except Exception as e:
-            logger.error(f"Error inesperado al crear los pagos del cliente: {str(e)}")
             dic_response.update(
                 {"message_user": "Error inesperado", "data": {"error": str(e)}}
             )
             return JsonResponse(dic_response, status=500)
 
-    return Response([], status=status.HTTP_200_OK)
+    return JsonResponse(dic_response, status=400)
 
 @api_view(["PUT"])
 @transaction.atomic
