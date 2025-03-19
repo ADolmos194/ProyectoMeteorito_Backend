@@ -20,4 +20,7 @@ urlpatterns = [
     # Ruta para listar los tipos de documento. Asociado con la vista 'listar_tipodocumento'
     path('tipodocumento/', listar_tipodocumento, name="listar_tipodocumento"),
     
+    path('cuotas/', listar_cuotas, name="listar_cuotas"),
+    path('cuotaspagadas/', listar_cuotas_pagadas, name="listar_cuotas_pagadas"),
+    
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

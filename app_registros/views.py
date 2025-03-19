@@ -731,6 +731,58 @@ def eliminar_tesis(request, id):
 
     return JsonResponse(dic_response, status=200)
 
+################################# LISTAR CLIENTE CON SU UNIVERSIDAD POR TESIS #################################
+@api_view(["GET"])
+@transaction.atomic
+def listar_tesisclientesuniversidad_activas(request):
+        
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Tesis de clientes - universidad activas no encontradas",
+        "message_user": "Tesis de clientes - universidad activas no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try: 
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        t.id,
+                        CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre
+                    FROM Tesis t
+                    LEFT JOIN Clientes c ON t.id = c.id
+                    WHERE t.estado_id IN (1)
+                    ORDER BY t.id DESC;
+                    """ 
+                )
+                dic_tesisclientesunivesidad_activas = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+                
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Tesis de clientes - universidad activas obtenidas correctamente",
+                    "message": "Tesis de clientes - universidad activas obtenidas correctamente",
+                    "data": dic_tesisclientesunivesidad_activas,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar las Tesis de clientes - universidad activas: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar las Tesis de clientes - universidad activas", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+
+
+################################# CRUD DE PAGO DE CLIENTES #################################
 
 @api_view(["GET"])
 @transaction.atomic
@@ -965,51 +1017,3 @@ def eliminar_pagosclientes(request, id):
 
     return JsonResponse(dic_response, status=200)
 
-@api_view(["GET"])
-@transaction.atomic
-def listar_tesisclientesuniversidad_activas(request):
-        
-    dic_response = {
-        "code": 400,
-        "status": "error",
-        "message": "Tesis de clientes - universidad activas no encontradas",
-        "message_user": "Tesis de clientes - universidad activas no encontradas",
-        "data": [],
-    }
-
-    if request.method == "GET":
-        try: 
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT
-                        t.id,
-                        CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre
-                    FROM Tesis t
-                    LEFT JOIN Clientes c ON t.id = c.id
-                    WHERE t.estado_id IN (1)
-                    ORDER BY t.id DESC;
-                    """ 
-                )
-                dic_tesisclientesunivesidad_activas = ConvertirQueryADiccionarioDato(cursor)
-                cursor.close()
-                
-            dic_response.update(
-                {
-                    "code": 200,
-                    "status": "success",
-                    "message_user": "Tesis de clientes - universidad activas obtenidas correctamente",
-                    "message": "Tesis de clientes - universidad activas obtenidas correctamente",
-                    "data": dic_tesisclientesunivesidad_activas,
-                }
-            )
-            return JsonResponse(dic_response, status=200)
-
-        except DatabaseError as e:
-            logger.error(f"Error al listar las Tesis de clientes - universidad activas: {str(e)}")
-            dic_response.update(
-                {"message": "Error al listar las Tesis de clientes - universidad activas", "data": str(e)}
-            )
-            return JsonResponse(dic_response, status=500)
-
-    return JsonResponse([], safe=False, status=status.HTTP_200_OK)

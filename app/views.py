@@ -206,3 +206,101 @@ def listar_estado_pago(request):
             return JsonResponse(dic_response, status=500)
 
     return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_cuotas(request):
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Cuotas no encontradas",
+        "message_user": "Cuotas no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try:
+
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        c.id,
+                        c.nombre
+                    FROM Cuotas c
+                    ORDER BY c.id DESC
+                    """
+                )
+                dic_cuotas = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+
+
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Cuotas obtenidas correctamente",
+                    "message": "Cuotas obtenidas correctamente",
+                    "data": dic_cuotas,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar las Cuotas: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar las Cuotas", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_cuotas_pagadas(request):
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Cuotas pagadas no encontradas",
+        "message_user": "Cuotas pagadas no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try:
+
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        cp.id,
+                        cp.nombre
+                    FROM Cuotaspagadas cp
+                    ORDER BY cp.id DESC
+                    """
+                )
+                dic_cuotaspagadas = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+
+
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Cuotas pagadas obtenidas correctamente",
+                    "message": "Cuotas pagadas obtenidas correctamente",
+                    "data": dic_cuotaspagadas,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar las cuotas pagadas: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar las cuotas pagadas", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
