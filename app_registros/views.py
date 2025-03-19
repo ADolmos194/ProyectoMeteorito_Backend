@@ -873,9 +873,7 @@ def crear_pagosclientes(request):
 
             if serializer.is_valid():
             
-
                 serializer.save()
-
                 dic_response.update(
                     {
                         "code": 201,
