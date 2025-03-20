@@ -805,23 +805,14 @@ def listar_pagosclientes(request):
                         pc.id,
                         pc.tesis_id,
                         CONCAT(c.nombre_completo, ' - ', t.universidad) AS nombre_cliente_universidad,
+                        pc.cuotas,
                         pc.monto_tesis,
-                        pc.cuotas_id,
-                        ct.nombre as cuotasnombre,
-                        pc.cuotas_pagadas_id,
-                        ctp.nombre as cuotaspagadasnombre, 
-                        pc.monto_cuotas,
-                        pc.fecha_pago_inicial,
-                        pc.fecha_pago_final,
-                        pc.estado_pagos_id,
                         pc.estado_id,
                         TO_CHAR(pc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
                         TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
                     FROM Pagosclientes pc
                     LEFT JOIN Tesis t ON pc.tesis_id = t.id
                     LEFT JOIN Clientes c ON t.clientes_id = c.id
-                    LEFT JOIN Cuotas ct ON pc.cuotas_id = ct.id
-                    LEFT JOIN Cuotaspagadas ctp ON pc.cuotas_pagadas_id = ctp.id
                     WHERE pc.estado_id IN (1, 2)
                     ORDER BY pc.id DESC;
                     """ 
@@ -853,6 +844,7 @@ def listar_pagosclientes(request):
 @api_view(["POST"])
 @transaction.atomic
 def crear_pagosclientes(request):
+    
     dic_response = {
         "code": 400,
         "status": "error",
@@ -864,49 +856,42 @@ def crear_pagosclientes(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            pagos_creados = []
-            fecha_creacion = datetime.now()
+            data["estado"] = 1 
+            data["fecha_creacion"] = datetime.now()  
+            data["fecha_modificacion"] = datetime.now()  
 
-            for i in range(1, data["cuotas"] + 1):
-                cuota_pagada = Cuotaspagadas.objects.filter(id=i).first()
-                if not cuota_pagada:
-                    continue
+            serializer = PagosclientesSerializer(data=data)
 
-                data["cuotas_pagadas"] = cuota_pagada.id
-                data["fecha_pago_inicial"] = data.get("fecha_pago_inicial") if i == 1 else None
-                data["fecha_pago_final"] = data.get("fecha_pago_final") if i == 1 else None
-                data["estado_pagos"] = 1 if i == 1 else 2
-                data["estado"] = 1
-                data["fecha_creacion"] = fecha_creacion
-                data["fecha_modificacion"] = fecha_creacion
-                
-                serializer = PagosclientesSerializer(data=data)
+            if serializer.is_valid():
             
-                if serializer.is_valid():
-                    serializer.save()
-                    pagos_creados.append(serializer.data)
-                else:
-                    return JsonResponse({"code": 400, "status": "error", "data": serializer.errors}, status=400)
+                serializer.save()
+                dic_response.update(
+                    {
+                        "code": 201,
+                        "status": "success",
+                        "message_user": "Pagos del cliente creado exitosamente",
+                        "message": "Pagos del cliente creado exitosamente",
+                        "data": serializer.data
+                    }
+                )
+
+                return JsonResponse(dic_response, status=201)
 
             dic_response.update(
                 {
-                    "code": 201,
-                    "status": "success",
-                    "message_user": "Pagos del cliente creados exitosamente",
-                    "message": "Pagos del cliente creados exitosamente",
-                    "data": pagos_creados,
+                    "data": serializer.errors,
                 }
             )
-
-            return JsonResponse(dic_response, status=201)
+            return JsonResponse(dic_response, status=400)
 
         except Exception as e:
+            logger.error(f"Error inesperado al crear los pagos del cliente: {str(e)}")
             dic_response.update(
                 {"message_user": "Error inesperado", "data": {"error": str(e)}}
             )
             return JsonResponse(dic_response, status=500)
 
-    return JsonResponse(dic_response, status=400)
+    return Response([], status=status.HTTP_200_OK)
 
 @api_view(["PUT"])
 @transaction.atomic

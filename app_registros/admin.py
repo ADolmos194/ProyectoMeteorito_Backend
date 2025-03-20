@@ -3,4 +3,4 @@ from django.contrib import admin
 from app_registros.models import *
 
 # Register your models here.
-admin.site.register([Clientes, Tesis, Pagosclientes])
+admin.site.register([Clientes, Tesis, Pagosclientes, Detallespagoclientes])
