@@ -787,7 +787,6 @@ def listar_tesisclientesuniversidad_activas(request):
 @api_view(["GET"])
 @transaction.atomic
 def listar_pagosclientes(request):
-        
     dic_response = {
         "code": 400,
         "status": "error",
@@ -797,7 +796,7 @@ def listar_pagosclientes(request):
     }
 
     if request.method == "GET":
-        try: 
+        try:
             with connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -809,18 +808,29 @@ def listar_pagosclientes(request):
                         pc.monto_tesis,
                         pc.estado_id,
                         TO_CHAR(pc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
-                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
+                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion,
+                        (
+                            SELECT json_agg(det)
+                            FROM (
+                                SELECT 
+                                    dpc.cuotaspagadas, 
+                                    TO_CHAR(dpc.fechapago, 'YYYY-MM-DD') AS fechapago,
+                                    dpc.estado_pago_id,
+                                    dpc.estado_id
+                                FROM detallespagoclientes dpc
+                                WHERE dpc.pagosclientes_id = pc.id
+                            ) det
+                        ) AS detalles_pago
                     FROM Pagosclientes pc
                     LEFT JOIN Tesis t ON pc.tesis_id = t.id
                     LEFT JOIN Clientes c ON t.clientes_id = c.id
                     WHERE pc.estado_id IN (1, 2)
                     ORDER BY pc.id DESC;
-                    """ 
-                    #no muestra cuotasnombre y cuotaspagadasnombre
+                    """
                 )
                 dic_pagoclientes = ConvertirQueryADiccionarioDato(cursor)
                 cursor.close()
-                
+
             dic_response.update(
                 {
                     "code": 200,
@@ -839,7 +849,8 @@ def listar_pagosclientes(request):
             )
             return JsonResponse(dic_response, status=500)
 
-    return JsonResponse([], safe=False, status=status.HTTP_200_OK)
+    return JsonResponse([], safe=False, status=200)
+
 
 @api_view(["POST"])
 @transaction.atomic
@@ -1005,4 +1016,7 @@ def eliminar_pagosclientes(request, id):
             return JsonResponse(dic_response, status=500)
 
     return JsonResponse(dic_response, status=200)
+
+
+################################# CRUD DE DETALLE DE PAGOS DE CLIENTES #################################
 
