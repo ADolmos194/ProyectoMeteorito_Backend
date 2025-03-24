@@ -90,6 +90,7 @@ class Detallespagoclientes(models.Model):
     
     pagosclientes = models.ForeignKey(Pagosclientes, on_delete=models.CASCADE)
     cuotaspagadas = models.CharField(max_length=25, null=True, blank=True)
+    monto_cuotas = models.FloatField(null=True, blank=True)
     fechapago = models.DateField(null=True, blank=True)
     estado_pago = models.ForeignKey(Estadopagos, on_delete=models.CASCADE)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)

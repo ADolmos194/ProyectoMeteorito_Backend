@@ -808,19 +808,7 @@ def listar_pagosclientes(request):
                         pc.monto_tesis,
                         pc.estado_id,
                         TO_CHAR(pc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
-                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion,
-                        (
-                            SELECT json_agg(det)
-                            FROM (
-                                SELECT 
-                                    dpc.cuotaspagadas, 
-                                    TO_CHAR(dpc.fechapago, 'YYYY-MM-DD') AS fechapago,
-                                    dpc.estado_pago_id,
-                                    dpc.estado_id
-                                FROM detallespagoclientes dpc
-                                WHERE dpc.pagosclientes_id = pc.id
-                            ) det
-                        ) AS detalles_pago
+                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
                     FROM Pagosclientes pc
                     LEFT JOIN Tesis t ON pc.tesis_id = t.id
                     LEFT JOIN Clientes c ON t.clientes_id = c.id
@@ -850,7 +838,6 @@ def listar_pagosclientes(request):
             return JsonResponse(dic_response, status=500)
 
     return JsonResponse([], safe=False, status=200)
-
 
 @api_view(["POST"])
 @transaction.atomic
@@ -1020,3 +1007,57 @@ def eliminar_pagosclientes(request, id):
 
 ################################# CRUD DE DETALLE DE PAGOS DE CLIENTES #################################
 
+
+@api_view(["GET"])
+@transaction.atomic
+def listar_detalle_pagosclientes(request):
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Detalles de pagos de clientes no encontradas",
+        "message_user": "Detalles de pagos de clientes no encontradas",
+        "data": [],
+    }
+
+    if request.method == "GET":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT
+                        dpc.id,
+                        dpc.pagosclientes_id,
+                        dpc.cuotaspagadas,
+                        dpc.monto_cuotas,
+                        dpc.fechapago,
+                        dpc.estado_pago_id,
+                        dpc.estado_id,
+                        TO_CHAR(dpc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
+                        TO_CHAR(dpc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
+                    FROM Detallespagoclientes dpc
+                    WHERE dpc.estado_id IN (1, 2)
+                    ORDER BY dpc.id DESC;
+                    """
+                )
+                dic_detallespagoclientes = ConvertirQueryADiccionarioDato(cursor)
+                cursor.close()
+
+            dic_response.update(
+                {
+                    "code": 200,
+                    "status": "success",
+                    "message_user": "Detalles de pagos de clientes obtenidas correctamente",
+                    "message": "Detalles de pagos de clientes obtenidas correctamente",
+                    "data": dic_detallespagoclientes,
+                }
+            )
+            return JsonResponse(dic_response, status=200)
+
+        except DatabaseError as e:
+            logger.error(f"Error al listar los Detalles de pagos de clientes: {str(e)}")
+            dic_response.update(
+                {"message": "Error al listar los Detalles de pagos de clientes", "data": str(e)}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], safe=False, status=200)

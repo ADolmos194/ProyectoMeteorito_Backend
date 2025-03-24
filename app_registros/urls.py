@@ -44,4 +44,9 @@ urlpatterns = [
     path('pagosclientes/actualizar/<int:id>/', actualizar_pagosclientes, name="actualizar_pagosclientes"),
     path('pagosclientes/eliminar/<int:id>/', eliminar_pagosclientes, name="eliminar_pagosclientes"),
     
+    
+    ############################### DETALLES PAGOS CLIENTES ##############################
+    
+    path('detallespagosclientes/', listar_detalle_pagosclientes, name="listar_detalle_pagosclientes"),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
