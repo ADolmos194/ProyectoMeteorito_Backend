@@ -808,7 +808,22 @@ def listar_pagosclientes(request):
                         pc.monto_tesis,
                         pc.estado_id,
                         TO_CHAR(pc.fecha_creacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_creacion,
-                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion
+                        TO_CHAR(pc.fecha_modificacion, 'YYYY-MM-DD HH24:MI:SS') as fecha_modificacion,
+                        (
+                            SELECT json_agg(det)
+                            FROM (
+                                SELECT 
+                                    dpc.id,
+                                    dpc.pagosclientes_id,
+                                    dpc.cuotaspagadas, 
+                                    dpc.monto_cuotas,
+                                    TO_CHAR(dpc.fechapago, 'DD-MM-YYYY') AS fechapago,
+                                    dpc.estado_pago_id,
+                                    dpc.estado_id
+                                FROM detallespagoclientes dpc
+                                WHERE dpc.pagosclientes_id = pc.id
+                            ) det
+                        ) AS detalles_pago
                     FROM Pagosclientes pc
                     LEFT JOIN Tesis t ON pc.tesis_id = t.id
                     LEFT JOIN Clientes c ON t.clientes_id = c.id
