@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     Clientes, 
     Tesis, 
-    Pagosclientes
+    Pagosclientes,
+    Detallespagoclientes
     )
 
 ################################################## GENERAL ############################################################
@@ -36,6 +37,14 @@ class PagosclientesSerializer(serializers.ModelSerializer):
     class Meta:
         
         model = Pagosclientes
+        
+        fields = '__all__'
+        
+class DetallePagosclientesSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        
+        model = Detallespagoclientes
         
         fields = '__all__'
         

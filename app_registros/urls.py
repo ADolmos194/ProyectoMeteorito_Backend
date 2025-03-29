@@ -48,5 +48,6 @@ urlpatterns = [
     ############################### DETALLES PAGOS CLIENTES ##############################
     
     path('detallespagosclientes/', listar_detalle_pagosclientes, name="listar_detalle_pagosclientes"),
+    path('detallespagosclientes/crear/', crear_detalle_pagosclientes, name="crear_detalle_pagosclientes"),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

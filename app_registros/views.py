@@ -817,7 +817,7 @@ def listar_pagosclientes(request):
                                     dpc.pagosclientes_id,
                                     dpc.cuotaspagadas, 
                                     dpc.monto_cuotas,
-                                    TO_CHAR(dpc.fechapago, 'DD-MM-YYYY') AS fechapago,
+                                    TO_CHAR(dpc.fechapago, 'YYYY-MM-DD') AS fechapago,
                                     dpc.estado_pago_id,
                                     dpc.estado_id
                                 FROM detallespagoclientes dpc
@@ -1076,3 +1076,54 @@ def listar_detalle_pagosclientes(request):
             return JsonResponse(dic_response, status=500)
 
     return JsonResponse([], safe=False, status=200)
+
+
+@api_view(["POST"])
+@transaction.atomic
+def crear_detalle_pagosclientes(request):
+    
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al crear el detalle del pago del cliente",
+        "message_user": "Error al crear el detalle del pago del cliente",
+        "data": [],
+    }
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            data["estado"] = 1 
+            
+            serializer = DetallePagosclientesSerializer(data=data)
+
+            if serializer.is_valid():
+            
+                serializer.save()
+                dic_response.update(
+                    {
+                        "code": 201,
+                        "status": "success",
+                        "message_user": "Detalle de pagos del cliente creado exitosamente",
+                        "message": "Detalle de pagos del cliente creado exitosamente",
+                        "data": serializer.data
+                    }
+                )
+
+                return JsonResponse(dic_response, status=201)
+
+            dic_response.update(
+                {
+                    "data": serializer.errors,
+                }
+            )
+            return JsonResponse(dic_response, status=400)
+
+        except Exception as e:
+            logger.error(f"Error inesperado al crear el detalle del pago del cliente: {str(e)}")
+            dic_response.update(
+                {"message_user": "Error inesperado", "data": {"error": str(e)}}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return Response([], status=status.HTTP_200_OK)
