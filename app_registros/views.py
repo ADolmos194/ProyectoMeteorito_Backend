@@ -821,7 +821,7 @@ def listar_pagosclientes(request):
                                     dpc.estado_pago_id,
                                     dpc.estado_id
                                 FROM detallespagoclientes dpc
-                                WHERE dpc.pagosclientes_id = pc.id
+                                WHERE dpc.pagosclientes_id = pc.id AND dpc.estado_id IN (1, 2)
                             ) det
                         ) AS detalles_pago
                     FROM Pagosclientes pc
@@ -1127,3 +1127,119 @@ def crear_detalle_pagosclientes(request):
             return JsonResponse(dic_response, status=500)
 
     return Response([], status=status.HTTP_200_OK)
+
+
+@api_view(["PUT"])
+@transaction.atomic
+def actualizar_detalle_pagosclientes(request, id):
+
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al actualizar el detalle de pago del cliente",
+        "message_user": "Error al actualizar el detalle de pago del cliente",
+        "data": [],
+    }
+
+    if request.method == "PUT":
+        try:
+            
+            data = json.loads(request.body)
+            
+            data["fecha_modificacion"] = datetime.now()
+            
+            try:
+                queryset = Detallespagoclientes.objects.using('default').get(id=id)
+            except Detallespagoclientes.DoesNotExist:
+                
+                return JsonResponse(dic_response, safe=False, status=status.HTTP_404_NOT_FOUND)
+
+            
+            serializer = DetallePagosclientesSerializer(queryset, data=data)
+
+            if serializer.is_valid():
+
+                serializer.save()
+                
+                dic_response.update(
+                    {
+                        "code": 200,
+                        "status": "success",
+                        "message_user": "Detalle de Pago del cliente actualizado exitosamente",
+                        "message": "Detalle de Pago del cliente actualizado exitosamente",
+                        "data": serializer.data
+                    }
+                )
+
+                return JsonResponse(dic_response, status=200)
+
+            dic_response.update(
+                {
+                    "message_user": "Datos inválidos.",
+                    "data": serializer.errors,
+                }
+            )
+            return JsonResponse(dic_response, status=400)
+
+        except Exception as e:
+
+            logger.error(f"Error inesperado al actualizar el detalle de pago del cliente: {str(e)}")
+            dic_response.update(
+                {"message_user": "Error inesperado", "data": {"error": str(e)}}
+            )
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse([], status=200)
+
+
+@api_view(["DELETE"])
+@transaction.atomic
+def eliminar_detalle_pagosclientes(request, id):
+
+    dic_response = {
+        "code": 400,
+        "status": "error",
+        "message": "Error al eliminar el detalle de pago del cliente",
+        "message_user": "Error al eliminar el detalle de pago del cliente",
+        "data": [],
+    }
+
+    if request.method == "DELETE":
+        try:
+
+            data = {"estado": 3}        
+
+            try:
+                queryset = Detallespagoclientes.objects.using('default').get(id=id)
+
+                queryset.estado = Estado.objects.using('default').get(id=data["estado"])
+                
+                queryset.fecha_modificacion = datetime.now()
+                
+                queryset.save()
+
+                serializer = DetallePagosclientesSerializer(queryset)
+
+                dic_response.update(
+                    {
+                        "code": 200,
+                        "status": "success",
+                        "message_user": "Detalle de Pago de cliente eliminado lógicamente",
+                        "message": "Detalle de Pago de cliente eliminado lógicamente",
+                        "data": serializer.data,
+                    }
+                )
+
+                logger.info(f"Detalle de Pago de cliente eliminado logicamente: (ID: {id})")
+                
+                return JsonResponse(dic_response, status=200)
+
+            except Detallespagoclientes.DoesNotExist:
+                return JsonResponse(dic_response, safe=False, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            logger.error(f"Error inesperado al eliminar el detalle de pago del cliente: {str(e)}")
+            dic_response["message"] = "Error inesperado"
+            return JsonResponse(dic_response, status=500)
+
+    return JsonResponse(dic_response, status=200)
